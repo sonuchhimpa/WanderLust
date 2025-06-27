@@ -26,7 +26,7 @@ async function main() {
 // ------------------  Basic App Configuration ------------------>
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname,"views"));
-
+app.use(express.urlencoded({extended : true}));
 
 // ------------------------- API ROUTE ------------------------->
 // Home Route
@@ -40,6 +40,12 @@ app.get("/listings" ,async (req,res)=>{
     res.render("listings/index.ejs",{listings})
 });
 
+// Show Route
+app.get("/listing/:id" ,async (req,res)=>{
+    let {id} = req.params;
+    const listingData = await listing.findById(id);
+    res.render("listings/show.ejs" , {listingData});
+})
 
 
 
