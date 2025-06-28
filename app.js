@@ -5,6 +5,7 @@ const app = express();
 const port = 8080;
 const listing = require("./Model/listing");
 const path = require("path");
+const methodOverride = require("method-override");
 
 // ---------------------- Connection setup ---------------------->
 const mongo_url = "mongodb://127.0.0.1:27017/wanderlust";
@@ -24,7 +25,7 @@ async function main() {
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.use(express.urlencoded({ extended: true }));
-
+app.use(methodOverride("_method"));
 // ------------------------- API ROUTE ------------------------->
 // Home Route
 app.get("/", (req, res) => {
@@ -54,7 +55,31 @@ app.post("/listings",async (req,res)=>{
   const newlisting = new listing(req.body.listing);
   await newlisting.save();
   res.redirect("/listings");
-})
+});
+
+// Edit Route
+app.get("/listing/:id/edit" ,async (req,res)=>{
+  let {id} = req.params;
+  let data = await listing.findById(id);
+  res.render("listings/edit.ejs" ,{data});
+});
+
+// Update Route
+app.put("/listing/:id", async(req,res)=>{
+  let {id} = req.params;
+  await listing.findByIdAndUpdate(id,{...req.body.listing});
+  res.redirect(`/listing/${id}`);
+});
+
+// Delete Route
+app.delete("/listing/:id", async (req,res)=>{
+  let {id} = req.params;
+  let deletedListing = await listing.findByIdAndDelete(id);
+  console.log(deletedListing);
+  res.redirect("/listings");
+});
+
+
 
 // Test Route
 // app.get("/testListing" , async (req,res)=>{
