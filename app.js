@@ -6,48 +6,55 @@ const port = 8080;
 const listing = require("./Model/listing");
 const path = require("path");
 
-
-
 // ---------------------- Connection setup ---------------------->
 const mongo_url = "mongodb://127.0.0.1:27017/wanderlust";
 main()
-    .then(()=>{
-        console.log("Connected to Database......");
-    })
-    .catch((err)=>{
-        console.log(err);
-    });
+  .then(() => {
+    console.log("Connected to Database......");
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 
 async function main() {
-    await mongoose.connect(mongo_url);
+  await mongoose.connect(mongo_url);
 }
-
 
 // ------------------  Basic App Configuration ------------------>
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname,"views"));
-app.use(express.urlencoded({extended : true}));
+app.set("views", path.join(__dirname, "views"));
+app.use(express.urlencoded({ extended: true }));
 
 // ------------------------- API ROUTE ------------------------->
 // Home Route
-app.get("/", (req,res)=>{
-    res.send("Hi, i am root");
+app.get("/", (req, res) => {
+  res.send("Hi, i am root");
 });
 
 //Index Route
-app.get("/listings" ,async (req,res)=>{
-    let listings = await listing.find({});
-    res.render("listings/index.ejs",{listings})
+app.get("/listings", async (req, res) => {
+  let listings = await listing.find({});
+  res.render("listings/index.ejs", { listings });
 });
 
 // Show Route
-app.get("/listing/:id" ,async (req,res)=>{
-    let {id} = req.params;
-    const listingData = await listing.findById(id);
-    res.render("listings/show.ejs" , {listingData});
+app.get("/listing/:id", async (req, res) => {
+  let { id } = req.params;
+  const listingData = await listing.findById(id);
+  res.render("listings/show.ejs", { listingData });
+});
+
+// New Route
+app.get("/listings/new", (req, res) => {
+  res.render("listings/new.ejs");
+});
+
+//Create Route
+app.post("/listings",async (req,res)=>{
+  const newlisting = new listing(req.body.listing);
+  await newlisting.save();
+  res.redirect("/listings");
 })
-
-
 
 // Test Route
 // app.get("/testListing" , async (req,res)=>{
@@ -64,9 +71,7 @@ app.get("/listing/:id" ,async (req,res)=>{
 //     res.send("Successful testing");
 // });
 
-
 // ---------------------- Server Setup ---------------------->
-app.listen(port,()=>{
-    console.log(`App is listning on port: 8080 ${port}`);
+app.listen(port, () => {
+  console.log(`App is listning on port: 8080 ${port}`);
 });
-
