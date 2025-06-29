@@ -1,25 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>WanderLust</title>
-  </head>
-  <body>
-    <h3>All Listings :</h3>
-    <form method="GET" action="/listings/new">
-      <button>New listing</button>
-    </form>
-    <ul>
-      <%for (let listing of listings) { %>
-      <li>
-        <a
-          style="color: blue; text-decoration: none"
-          href="/listing/<%= listing._id %>"
-          ><%= listing.title %></a
-        >
-      </li>
-      <%}%>
-    </ul>
-  </body>
-</html>
+<% layout("/layouts/boilerplate") -%>
+<body>
+  <h3>All Listings :</h3>
+  <ul>
+    <%for (let listing of listings) { %>
+    <li>
+      <a
+        style="color: blue; text-decoration: none"
+        href="/listing/<%= listing._id %>"
+        ><%= listing.title %></a
+      >
+    </li>
+    <%}%>
+  </ul>
+</body>
