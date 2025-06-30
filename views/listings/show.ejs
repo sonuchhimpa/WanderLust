@@ -1,22 +1,20 @@
 <% layout("/layouts/boilerplate") -%>
 <body>
-    <h3>Listing Details: </h3>   
-    <ul>
-        <li><%= listingData.title %></li>
-        <li><%= listingData.description %></li>
-        <li> &#8377;<%= listingData.price.toLocaleString("en-IN") %></li>
-        <li><%= listingData.location %></li>
-        <li><%= listingData.country %></li>
+  <h3>Listing Details:</h3>
+  <ul>
+    <li><%= listingData.title %></li>
+    <li><%= listingData.description %></li>
+    <li>&#8377;<%= listingData.price.toLocaleString("en-IN") %></li>
+    <li><%= listingData.location %></li>
+    <li><%= listingData.country %></li>
+    <li><%= listingData.image.url %></li>
+  </ul>
 
-    </ul> 
-    
-    <div style="display: flex; justify-content: space-between; width: 10%;">
-        <a href="/listing/<%= listingData._id %>/edit ">Edit </a>
-        <br><br>
-        <form method="POST" action="/listing/<%=listingData._id %>?_method=DELETE">
-            <button>Delete</button>
-        </form>
-    </div>
-
-
+  <div style="display: flex; justify-content: space-between; width: 10%">
+    <a href="/listing/<%= listingData._id %>/edit ">Edit </a>
+    <br /><br />
+    <form method="POST" action="/listing/<%=listingData._id %>?_method=DELETE">
+      <button>Delete</button>
+    </form>
+  </div>
 </body>
