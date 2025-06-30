@@ -47,7 +47,7 @@
   text-align: center;
 }
 
-/* index---------------------------------------> */
+/* index ---------------------------------------> */
 .card {
   border: none !important;
   margin-bottom: 1.5rem;
@@ -76,4 +76,19 @@
 
 .card-img-overlay:hover {
   opacity: 0.2;
+}
+
+/* New  ---------------------------------------> */
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+.container {
+  flex: 1;
+}
+
+.add-btn {
+  background-color: #fe424d !important;
+  border: none !important;
 }
