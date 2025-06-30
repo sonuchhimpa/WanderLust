@@ -1,6 +1,6 @@
 <% layout("/layouts/boilerplate") -%>
 <body>
-  <div style="padding: 3rem" class="new-div">
+  <div style="padding: 3rem">
     <h2>Create a new Listing</h2>
 
     <form action="/listings" method="post">
@@ -17,9 +17,7 @@
 
       <div>
         <label for="description" class="form-label">Description :-</label>
-        <textarea name="listing[description]" class="form-control">
-Description</textarea
-        >
+        <textarea name="listing[description]" class="form-control"></textarea>
       </div>
       <br />
 
