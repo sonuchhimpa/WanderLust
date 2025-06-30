@@ -1,20 +1,53 @@
 <% layout("/layouts/boilerplate") -%>
 <body>
-  <h3>Listing Details:</h3>
-  <ul>
-    <li><%= listingData.title %></li>
-    <li><%= listingData.description %></li>
-    <li>&#8377;<%= listingData.price.toLocaleString("en-IN") %></li>
-    <li><%= listingData.location %></li>
-    <li><%= listingData.country %></li>
-    <li><%= listingData.image.url %></li>
-  </ul>
+  <div style="padding-left: 4rem">
+    <div class="row mt-4">
+      <div class="col-8 offset-1">
+        <div class="card" style="width: 18rem">
+          <img
+            src="<%= listingData.image.url %>"
+            class="card-img-top show-img"
+            alt="listing_img"
+          />
+          <div class="card-body">
+            <p class="card-text" style="font-weight: 500 !important">
+              <%= listingData.title %>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-  <div style="display: flex; justify-content: space-between; width: 10%">
-    <a href="/listing/<%= listingData._id %>/edit ">Edit </a>
-    <br /><br />
-    <form method="POST" action="/listing/<%=listingData._id %>?_method=DELETE">
-      <button>Delete</button>
-    </form>
+    <h3>Listing Details:</h3>
+    <div class="details">
+      <ul>
+        <li><%= listingData.description %></li>
+        <li>&#8377;<%=listingData.price.toLocaleString("en-IN")%></li>
+        <li><%= listingData.location %></li>
+        <li><%= listingData.country %></li>
+      </ul>
+    </div>
+
+    <div class="row">
+      <div class="col-10">
+        <div style="display: flex; justify-content: start; width: 100%">
+          <a
+            href="/listing/<%= listingData._id %>/edit "
+            class="btn btn-dark add-btn"
+            style="height: 38px"
+            >&nbsp;&nbsp;&nbsp;Edit&nbsp;&nbsp;&nbsp;
+          </a>
+          <br /><br />
+          <form
+            method="POST"
+            action="/listing/<%=listingData._id %>?_method=DELETE"
+          >
+            <button class="btn btn-dark" style="margin-left: 5rem">
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
   </div>
 </body>

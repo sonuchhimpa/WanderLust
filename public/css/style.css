@@ -92,3 +92,12 @@ body {
   background-color: #fe424d !important;
   border: none !important;
 }
+
+/* Show  ---------------------------------------> */
+.show-img {
+  height: 30vh !important;
+}
+
+.details li {
+  font-weight: 400;
+}
