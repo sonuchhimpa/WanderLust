@@ -108,13 +108,6 @@ app.delete(
   })
 );
 
-app.all(
-  "",
-  wrapAsync((req, res, next) => {
-    next(new expressError(404, "Page Not Found!"));
-  })
-);
-
 // ---------------------- Middlewares ---------------------->
 app.use((err, req, res, next) => {
   let { statusCode = 500, message = "Something went wrong" } = err;
