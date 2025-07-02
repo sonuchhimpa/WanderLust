@@ -3,7 +3,7 @@
   <div style="padding: 3rem">
     <h2>Create a new Listing</h2>
 
-    <form action="/listings" method="post">
+    <form action="/listings" method="post" class="needs-validation" novalidate>
       <div>
         <label for="label" class="form-label">Title :-</label>
         <input
@@ -11,13 +11,22 @@
           name="listing[title]"
           placeholder="Enter a catchy title"
           class="form-control"
+          required
         />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Title is missing!</div>
       </div>
       <br />
 
       <div>
         <label for="description" class="form-label">Description :-</label>
-        <textarea name="listing[description]" class="form-control"></textarea>
+        <textarea
+          name="listing[description]"
+          class="form-control"
+          required
+        ></textarea>
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Description is missing!</div>
       </div>
       <br />
 
@@ -40,7 +49,10 @@
             name="listing[price]"
             placeholder="e.g 1200"
             class="form-control"
+            required
           />
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">Enter valid price</div>
         </div>
         <br />
 
@@ -51,7 +63,10 @@
             name="listing[location]"
             placeholder="Enter location"
             class="form-control"
+            required
           />
+          <div class="valid-feedback">Looks good!</div>
+          <div class="invalid-feedback">locaiton is missing!</div>
         </div>
       </div>
       <br />
@@ -63,7 +78,10 @@
           name="listing[country]"
           placeholder="Enter country"
           class="form-control"
+          required
         />
+        <div class="valid-feedback">Looks good!</div>
+        <div class="invalid-feedback">Plaease enter your country</div>
       </div>
       <br />
 
