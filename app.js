@@ -55,7 +55,7 @@ app.get("/listings/:id", async (req, res) => {
   res.render("listings/show.ejs", { listingData });
 });
 
-//Update Creation Route
+// Update Creation Route
 app.post(
   "/listings",
   wrapAsync(async (req, res) => {
@@ -90,21 +90,6 @@ app.delete("/listings/:id", async (req, res) => {
 app.all("", (req, res, next) => {
   next(new expressError(404, "Page Not Found!"));
 });
-
-// Test Route
-// app.get("/testListing" , async (req,res)=>{
-//     let sampleListing = new listing({
-//         title : "My new Home",
-//         description : "by the beach",
-//         image : {filename : "listingimage"},
-//         price : 1200,
-//         location : "goa",
-//         country : "India"
-//     })
-//     await sampleListing.save();
-//     console.log("Sample is saved");
-//     res.send("Successful testing");
-// });
 
 // ---------------------- Middlewares ---------------------->
 app.use((err, req, res, next) => {
