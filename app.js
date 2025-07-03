@@ -135,5 +135,5 @@ app.use((err, req, res, next) => {
 
 // ---------------------- Server Setup ---------------------->
 app.listen(port, () => {
-  console.log(`App is listning on port: 8080 ${port}`);
+  console.log(`App is listning on port: ${port}`);
 });
