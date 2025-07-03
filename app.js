@@ -32,6 +32,19 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
+
+// ------------------------- Function ------------------------->
+const validateListing = (req, res, next) => {
+  console.log(req.body);
+  let { error } = listingSchema.validate(req.body);
+  if (error) {
+    let errMsg = error.details.map((el) => el.message).join(",");
+    throw new expressError(400, errMsg);
+  } else {
+    next();
+  }
+};
+
 // ------------------------- API ROUTE ------------------------->
 // Home Route
 app.get(
@@ -71,15 +84,8 @@ app.get(
 // Update Creation Route
 app.post(
   "/listings",
+  validateListing,
   wrapAsync(async (req, res) => {
-    let result = listingSchema.validate(req.body);
-    console.log(result);
-    if (result.error) {
-      throw new expressError(400, result.error);
-    }
-    // if (!req.body.listing) {
-    //   throw new expressError(400, "Send a valid data");
-    // }
     const newlisting = new listing(req.body.listing);
     await newlisting.save();
     res.redirect("/listings");
@@ -99,6 +105,7 @@ app.get(
 // Update Edition Route
 app.put(
   "/listings/:id",
+  validateListing,
   wrapAsync(async (req, res) => {
     let { id } = req.params;
     if (!req.body.listing) {
