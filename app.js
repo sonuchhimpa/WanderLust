@@ -9,6 +9,7 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const wrapAsync = require("./utils/wrapAsync");
 const expressError = require("./utils/expressError");
+const listingSchema = require("./schema");
 
 // ---------------------- Connection setup ---------------------->
 const mongo_url = "mongodb://127.0.0.1:27017/wanderlust";
@@ -71,9 +72,14 @@ app.get(
 app.post(
   "/listings",
   wrapAsync(async (req, res) => {
-    if (!req.body.listing) {
-      throw new expressError(400, "Send a valid data");
+    let result = listingSchema.validate(req.body);
+    console.log(result);
+    if (result.error) {
+      throw new expressError(400, result.error);
     }
+    // if (!req.body.listing) {
+    //   throw new expressError(400, "Send a valid data");
+    // }
     const newlisting = new listing(req.body.listing);
     await newlisting.save();
     res.redirect("/listings");
