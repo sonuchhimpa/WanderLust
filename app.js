@@ -9,7 +9,7 @@ const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const wrapAsync = require("./utils/wrapAsync");
 const expressError = require("./utils/expressError");
-const { listingSchema, reviewSchema } = require("./schema.js");
+const { listingSchemaJoi, reviewSchemaJoi } = require("./schema.js");
 const Review = require("./Model/review");
 
 // ---------------------- Connection setup ---------------------->
@@ -37,7 +37,7 @@ app.use(express.static(path.join(__dirname, "/public")));
 // ------------------------- Function ------------------------->
 const validateListing = (req, res, next) => {
   console.log(req.body);
-  let { error } = listingSchema.validate(req.body);
+  let { error } = listingSchemaJoi.validate(req.body);
   if (error) {
     let errMsg = error.details.map((el) => el.message).join(",");
     throw new expressError(400, errMsg);
@@ -47,7 +47,7 @@ const validateListing = (req, res, next) => {
 };
 
 const validateReview = (req, res, next) => {
-  let { error } = reviewSchema.validate(req.body);
+  let { error } = reviewSchemaJoi.validate(req.body);
   if (error) {
     let errMsg = error.details.map((el) => el.message).join(",");
     throw new expressError(400, errMsg);
@@ -99,7 +99,7 @@ app.get(
   "/listings/:id",
   wrapAsync(async (req, res) => {
     let { id } = req.params;
-    const listingData = await Listing.findById(id);
+    const listingData = await Listing.findById(id).populate("reviews");
     res.render("listings/show.ejs", { listingData });
   })
 );
@@ -140,22 +140,37 @@ app.delete(
 );
 
 // Add review Route
-app.post("/listings/:id/reviews", validateReview, async (req, res) => {
-  let { id } = req.params;
-  let listingx = await Listing.findById(id);
-  let newReview = new Review(req.body.review);
-  listingx.reviews.push(newReview);
-  await newReview.save();
-  await listingx.save();
+app.post(
+  "/listings/:id/reviews",
+  validateReview,
+  wrapAsync(async (req, res) => {
+    let { id } = req.params;
+    let listingx = await Listing.findById(id);
+    let newReview = new Review(req.body.review);
+    listingx.reviews.push(newReview);
+    await newReview.save();
+    await listingx.save();
 
-  res.redirect(`/listings/${id}`);
-});
+    res.redirect(`/listings/${id}`);
+  })
+);
+
+// Delete review
+app.delete(
+  "/listings/:id/reviews/:reviewId",
+  wrapAsync(async (req, res, next) => {
+    let { id, reviewId } = req.params;
+    await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
+    await Review.findByIdAndDelete(reviewId);
+    res.redirect(`/listings/${id}`);
+  })
+);
 
 // ---------------------- Middlewares ---------------------->
-// app.use((err, req, res, next) => {
-//   let { statusCode = 500, message = "Something went wrong" } = err;
-//   res.status(statusCode).render("error.ejs", { err });
-// });
+app.use((err, req, res, next) => {
+  let { statusCode = 500, message = "Something went wrong" } = err;
+  res.status(statusCode).render("error.ejs", { err });
+});
 
 // ---------------------- Server Setup ---------------------->
 app.listen(port, () => {
