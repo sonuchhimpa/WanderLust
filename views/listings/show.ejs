@@ -17,7 +17,7 @@
         </div>
       </div>
     </div>
-
+    <hr />
     <h3>Listing Details:</h3>
     <div class="details">
       <ul>
@@ -48,6 +48,43 @@
           </form>
         </div>
       </div>
+    </div>
+    <hr />
+    <div class="mb-3">
+      <h4>Leave a Review</h4>
+      <form
+        class="col-8 offset-1 needs-validation"
+        action="/listings/<%=listingData._id%>/reviews"
+        method="post"
+        novalidate
+      >
+        <div>
+          <label for="rating" class="form-label">Rating</label>
+          <input
+            id="rating"
+            type="range"
+            min="1"
+            max="5"
+            name="review[rating]"
+            class="form-range"
+          />
+        </div>
+        <div>
+          <label class="form-label" for="comment">Comments</label><br />
+          <textarea
+            class="form-control"
+            id="comment"
+            rows="3"
+            name="review[comment]"
+            required
+          ></textarea>
+          <div class="invalid-feedback">Review can't be empty</div>
+        </div>
+
+        <div class="mt-2">
+          <button class="btn btn-outline-dark">Submit</button>
+        </div>
+      </form>
     </div>
   </div>
 </body>

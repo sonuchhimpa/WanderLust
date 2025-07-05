@@ -3,13 +3,14 @@ const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
 const port = 8080;
-const listing = require("./Model/listing");
+const Listing = require("./Model/listing.js");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const wrapAsync = require("./utils/wrapAsync");
 const expressError = require("./utils/expressError");
-const listingSchema = require("./schema");
+const { listingSchema, reviewSchema } = require("./schema.js");
+const Review = require("./Model/review");
 
 // ---------------------- Connection setup ---------------------->
 const mongo_url = "mongodb://127.0.0.1:27017/wanderlust";
@@ -45,6 +46,16 @@ const validateListing = (req, res, next) => {
   }
 };
 
+const validateReview = (req, res, next) => {
+  let { error } = reviewSchema.validate(req.body);
+  if (error) {
+    let errMsg = error.details.map((el) => el.message).join(",");
+    throw new expressError(400, errMsg);
+  } else {
+    next();
+  }
+};
+
 // ------------------------- API ROUTE ------------------------->
 // Home Route
 app.get(
@@ -58,7 +69,7 @@ app.get(
 app.get(
   "/listings",
   wrapAsync(async (req, res) => {
-    let listings = await listing.find({});
+    let listings = await Listing.find({});
     res.render("listings/index.ejs", { listings });
   })
 );
@@ -71,24 +82,25 @@ app.get(
   })
 );
 
-// Show Route
-app.get(
-  "/listings/:id",
-  wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    const listingData = await listing.findById(id);
-    res.render("listings/show.ejs", { listingData });
-  })
-);
-
 // Update Creation Route
 app.post(
   "/listings",
   validateListing,
   wrapAsync(async (req, res) => {
-    const newlisting = new listing(req.body.listing);
+    const newlisting = new Listing(req.body.listing);
+    console.log(newlisting);
     await newlisting.save();
     res.redirect("/listings");
+  })
+);
+
+// Show Route
+app.get(
+  "/listings/:id",
+  wrapAsync(async (req, res) => {
+    let { id } = req.params;
+    const listingData = await Listing.findById(id);
+    res.render("listings/show.ejs", { listingData });
   })
 );
 
@@ -97,7 +109,7 @@ app.get(
   "/listings/:id/edit",
   wrapAsync(async (req, res) => {
     let { id } = req.params;
-    let data = await listing.findById(id);
+    let data = await Listing.findById(id);
     res.render("listings/edit.ejs", { data });
   })
 );
@@ -111,7 +123,7 @@ app.put(
     if (!req.body.listing) {
       throw new expressError(400, "Send a valid data");
     }
-    await listing.findByIdAndUpdate(id, { ...req.body.listing });
+    await Listing.findByIdAndUpdate(id, { ...req.body.listing });
     res.redirect(`/listings/${id}`);
   })
 );
@@ -121,17 +133,29 @@ app.delete(
   "/listings/:id",
   wrapAsync(async (req, res) => {
     let { id } = req.params;
-    let deletedListing = await listing.findByIdAndDelete(id);
+    let deletedListing = await Listing.findByIdAndDelete(id);
     console.log(deletedListing);
     res.redirect("/listings");
   })
 );
 
-// ---------------------- Middlewares ---------------------->
-app.use((err, req, res, next) => {
-  let { statusCode = 500, message = "Something went wrong" } = err;
-  res.status(statusCode).render("error.ejs", { err });
+// Add review Route
+app.post("/listings/:id/reviews", validateReview, async (req, res) => {
+  let { id } = req.params;
+  let listingx = await Listing.findById(id);
+  let newReview = new Review(req.body.review);
+  listingx.reviews.push(newReview);
+  await newReview.save();
+  await listingx.save();
+
+  res.redirect(`/listings/${id}`);
 });
+
+// ---------------------- Middlewares ---------------------->
+// app.use((err, req, res, next) => {
+//   let { statusCode = 500, message = "Something went wrong" } = err;
+//   res.status(statusCode).render("error.ejs", { err });
+// });
 
 // ---------------------- Server Setup ---------------------->
 app.listen(port, () => {
