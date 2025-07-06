@@ -3,14 +3,12 @@ const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
 const port = 8080;
-const Listing = require("./Model/listing.js");
 const path = require("path");
 const methodOverride = require("method-override");
 const ejsMate = require("ejs-mate");
 const wrapAsync = require("./utils/wrapAsync");
-const expressError = require("./utils/expressError");
-const { listingSchemaJoi, reviewSchemaJoi } = require("./schema.js");
-const Review = require("./Model/review");
+const listings = require("./routes/listing.js");
+const reviews = require("./routes/review.js");
 
 // ---------------------- Connection setup ---------------------->
 const mongo_url = "mongodb://127.0.0.1:27017/wanderlust";
@@ -34,28 +32,6 @@ app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
 
-// ------------------------- Function ------------------------->
-const validateListing = (req, res, next) => {
-  console.log(req.body);
-  let { error } = listingSchemaJoi.validate(req.body);
-  if (error) {
-    let errMsg = error.details.map((el) => el.message).join(",");
-    throw new expressError(400, errMsg);
-  } else {
-    next();
-  }
-};
-
-const validateReview = (req, res, next) => {
-  let { error } = reviewSchemaJoi.validate(req.body);
-  if (error) {
-    let errMsg = error.details.map((el) => el.message).join(",");
-    throw new expressError(400, errMsg);
-  } else {
-    next();
-  }
-};
-
 // ------------------------- API ROUTE ------------------------->
 // Home Route
 app.get(
@@ -65,106 +41,8 @@ app.get(
   })
 );
 
-//Index Route
-app.get(
-  "/listings",
-  wrapAsync(async (req, res) => {
-    let listings = await Listing.find({});
-    res.render("listings/index.ejs", { listings });
-  })
-);
-
-// New Route
-app.get(
-  "/listings/new",
-  wrapAsync((req, res) => {
-    res.render("listings/new.ejs");
-  })
-);
-
-// Update Creation Route
-app.post(
-  "/listings",
-  validateListing,
-  wrapAsync(async (req, res) => {
-    const newlisting = new Listing(req.body.listing);
-    console.log(newlisting);
-    await newlisting.save();
-    res.redirect("/listings");
-  })
-);
-
-// Show Route
-app.get(
-  "/listings/:id",
-  wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    const listingData = await Listing.findById(id).populate("reviews");
-    res.render("listings/show.ejs", { listingData });
-  })
-);
-
-// Edit Route
-app.get(
-  "/listings/:id/edit",
-  wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    let data = await Listing.findById(id);
-    res.render("listings/edit.ejs", { data });
-  })
-);
-
-// Update Edition Route
-app.put(
-  "/listings/:id",
-  validateListing,
-  wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    if (!req.body.listing) {
-      throw new expressError(400, "Send a valid data");
-    }
-    await Listing.findByIdAndUpdate(id, { ...req.body.listing });
-    res.redirect(`/listings/${id}`);
-  })
-);
-
-// Delete Route
-app.delete(
-  "/listings/:id",
-  wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    let deletedListing = await Listing.findByIdAndDelete(id);
-    console.log(deletedListing);
-    res.redirect("/listings");
-  })
-);
-
-// Add review Route
-app.post(
-  "/listings/:id/reviews",
-  validateReview,
-  wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    let listingx = await Listing.findById(id);
-    let newReview = new Review(req.body.review);
-    listingx.reviews.push(newReview);
-    await newReview.save();
-    await listingx.save();
-
-    res.redirect(`/listings/${id}`);
-  })
-);
-
-// Delete review
-app.delete(
-  "/listings/:id/reviews/:reviewId",
-  wrapAsync(async (req, res, next) => {
-    let { id, reviewId } = req.params;
-    await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
-    await Review.findByIdAndDelete(reviewId);
-    res.redirect(`/listings/${id}`);
-  })
-);
+app.use("/listings", listings);
+app.use("/listings/:id/reviews", reviews);
 
 // ---------------------- Middlewares ---------------------->
 app.use((err, req, res, next) => {
