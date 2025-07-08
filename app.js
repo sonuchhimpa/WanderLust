@@ -5,14 +5,28 @@ const app = express();
 const port = 8080;
 const path = require("path");
 const methodOverride = require("method-override");
+
+// Modularity -> Layouts & includes
 const ejsMate = require("ejs-mate");
+
+// Try catch
 const wrapAsync = require("./utils/wrapAsync");
-const listings = require("./routes/listing.js");
-const reviews = require("./routes/review.js");
+
+// Routing
+const listingsRouter = require("./routes/listing.js");
+const reviewsRouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
+
+// Session on Flash alearts
 const session = require("express-session");
 const flash = require("connect-flash");
 
-// ---------------------- Session/Flash setting ---------------------->
+// Authentication & Authorization
+const passport = require("passport");
+const LocalStrategy = require("passport-local");
+const User = require("./Model/user.js");
+
+// ---------------------- Session setting ---------------------->
 const sessionOption = {
   secret: "mysupersecretcode",
   resave: false,
@@ -24,8 +38,17 @@ const sessionOption = {
   },
 };
 
+// ---------------------- Middleware setup ---------------------->
+// Session & flash
 app.use(session(sessionOption));
 app.use(flash());
+
+// Passport
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
 
 // ---------------------- Connection setup ---------------------->
 const mongo_url = "mongodb://127.0.0.1:27017/wanderlust";
@@ -48,7 +71,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.engine("ejs", ejsMate);
 app.use(express.static(path.join(__dirname, "/public")));
-app.use;
 
 // ------------------------- API ROUTE ------------------------->
 // Home Route
@@ -59,6 +81,16 @@ app.get(
   })
 );
 
+// Demo user
+// app.get("/demouser", async (req, res) => {
+//   let fakeUser = new User({
+//     email: "student@gmail.com",
+//     username: "delta-student",
+//   });
+//   let registeredUser = await User.register(fakeUser, "fakePassword");
+//   res.send(registeredUser);
+// });
+
 // Middleware
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
@@ -66,8 +98,9 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/listings", listings);
-app.use("/listings/:id/reviews", reviews);
+app.use("/listings", listingsRouter);
+app.use("/listings/:id/reviews", reviewsRouter);
+app.use("/", userRouter);
 
 // ---------------------- Middlewares ---------------------->
 app.use((err, req, res, next) => {
