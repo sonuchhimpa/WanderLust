@@ -21,6 +21,9 @@
     <h3>Listing Details:</h3>
     <div class="details">
       <ul>
+        <li>
+          <b><i>Owned by <%= listingData.owner.username %></i></b>
+        </li>
         <li><%= listingData.description %></li>
         <li>&#8377;<%=listingData.price.toLocaleString("en-IN")%></li>
         <li><%= listingData.location %></li>
