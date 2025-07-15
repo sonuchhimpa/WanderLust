@@ -1,23 +1,15 @@
 // ---------------------- Setting packages ---------------------->
 const Listing = require("../Model/listing.js");
 const expressError = require("../utils/expressError");
-const { listingSchemaJoi } = require("../schema.js");
 const wrapAsync = require("../utils/wrapAsync");
 const express = require("express");
 const router = express.Router();
-const { isLoggedIn } = require("../middleware.js");
-
-// ------------------------- Function ------------------------->
-const validateListing = (req, res, next) => {
-  console.log(req.body);
-  let { error } = listingSchemaJoi.validate(req.body);
-  if (error) {
-    let errMsg = error.details.map((el) => el.message).join(",");
-    throw new expressError(400, errMsg);
-  } else {
-    next();
-  }
-};
+const {
+  isLoggedIn,
+  isEditAble,
+  isOwner,
+  validateListing,
+} = require("../middleware.js");
 
 // ------------------------- API ROUTE ------------------------->
 //Index Route
@@ -46,6 +38,7 @@ router.post(
   wrapAsync(async (req, res) => {
     const newlisting = new Listing(req.body.listing);
     console.log(newlisting);
+    console.log(req.user);
     newlisting.owner = req.user._id;
     await newlisting.save();
     req.flash("success", "New listing created");
@@ -73,7 +66,8 @@ router.get(
 // Edit Route
 router.get(
   "/:id/edit",
-  isLoggedIn,
+  isEditAble,
+  isOwner,
   wrapAsync(async (req, res) => {
     let { id } = req.params;
     let data = await Listing.findById(id);
@@ -88,6 +82,7 @@ router.get(
 // Update Edition Route
 router.put(
   "/:id",
+  isOwner,
   validateListing,
   wrapAsync(async (req, res) => {
     let { id } = req.params;
@@ -104,6 +99,7 @@ router.put(
 router.delete(
   "/:id",
   isLoggedIn,
+  isOwner,
   wrapAsync(async (req, res) => {
     let { id } = req.params;
     let deletedListing = await Listing.findByIdAndDelete(id);
