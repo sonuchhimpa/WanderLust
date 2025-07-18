@@ -1,4 +1,5 @@
 const Listing = require("../WanderLust/Model/listing");
+const Review = require("../WanderLust/Model/review");
 const { listingSchemaJoi } = require("./schema.js");
 const expressError = require("./utils/expressError");
 const { reviewSchemaJoi } = require("./schema.js");
@@ -57,4 +58,14 @@ module.exports.validateReview = (req, res, next) => {
   } else {
     next();
   }
+};
+
+module.exports.isAuthor = async (req, res, next) => {
+  let { reviewId, id } = req.params;
+  let review = await Review.findById(reviewId);
+  if (!res.locals.currUser || !review.author.equals(res.locals.currUser._id)) {
+    req.flash("error", "You don't have permission to delete the review");
+    return res.redirect(`/listings/${id}`);
+  }
+  next();
 };
