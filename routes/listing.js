@@ -11,23 +11,15 @@ const {
   validateListing,
 } = require("../middleware.js");
 
+const listingController = require("../controller/listings.js");
+
+
 // ------------------------- API ROUTE ------------------------->
 //Index Route
-router.get(
-  "/",
-  wrapAsync(async (req, res) => {
-    let listings = await Listing.find({});
-    res.render("listings/index.ejs", { listings });
-  })
-);
+router.get("/",wrapAsync(listingController.index));
 
 // New Route
-router.get(
-  "/new",
-  isLoggedIn,
-  wrapAsync((req, res) => {
-    res.render("listings/new.ejs");
-  })
+router.get("/new", isLoggedIn, wrapAsync(listingController.renderNewForm)
 );
 
 // Update Creation Route
@@ -35,37 +27,13 @@ router.post(
   "/",
   isLoggedIn,
   validateListing,
-  wrapAsync(async (req, res) => {
-    const newlisting = new Listing(req.body.listing);
-    console.log(newlisting);
-    console.log(req.user);
-    newlisting.owner = req.user._id;
-    await newlisting.save();
-    req.flash("success", "New listing created");
-    res.redirect("/listings");
-  })
+  wrapAsync(listingController.createListing)
 );
 
 // Show Route
 router.get(
   "/:id",
-  wrapAsync(async (req, res) => {
-    let { id } = req.params;
-    const listingData = await Listing.findById(id)
-      .populate({
-        path: "reviews",
-        populate: {
-          path: "author",
-        },
-      })
-      .populate("owner");
-    if (!listingData) {
-      req.flash("error", "listing not existed");
-      return res.redirect("/listings");
-    }
-    console.log(listingData);
-    res.render("listings/show.ejs", { listingData });
-  })
+  wrapAsync(listingController.showListing)
 );
 
 // Edit Route
