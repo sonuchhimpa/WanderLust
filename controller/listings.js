@@ -37,3 +37,31 @@ module.exports.createListing = async (req, res) => {
     res.redirect("/listings");
 };
 
+module.exports.editListing = async (req, res) => {
+    let { id } = req.params;
+    let data = await Listing.findById(id);
+    if (!data) {
+      req.flash("error", "listing not existed");
+      return res.redirect("/listings");
+    }
+    res.render("listings/edit.ejs", { data });
+};
+
+module.exports.updateListing = async (req, res) => {
+    let { id } = req.params;
+    if (!req.body.listing) {
+      throw new expressError(400, "Send a valid data");
+    }
+    await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+    req.flash("success", "listing updated successfully");
+    res.redirect(`/listings/${id}`);
+};
+
+module.exports.deleteListing = async (req, res) => {
+    let { id } = req.params;
+    let deletedListing = await Listing.findByIdAndDelete(id);
+    console.log(deletedListing);
+    req.flash("success", "listing deleted successfully");
+    res.redirect("/listings");
+};
+
