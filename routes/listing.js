@@ -12,6 +12,10 @@ const {
 } = require("../middleware.js");
 
 const listingController = require("../controller/listings.js");
+const multer = require("multer");
+const {storage} = require("../cloudConfig.js");
+const upload = multer({storage});
+
 
 
 // ------------------------- API ROUTE ------------------------->
@@ -26,6 +30,7 @@ router.get("/new", isLoggedIn, wrapAsync(listingController.renderNewForm)
 router.post(
   "/",
   isLoggedIn,
+  upload.single('listing[image]'),
   validateListing,
   wrapAsync(listingController.createListing)
 );

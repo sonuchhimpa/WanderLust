@@ -1,10 +1,16 @@
 // ---------------------- Setting packages ---------------------->
+if(process.env.NODE_ENV != "production"){
+  require("dotenv").config();
+}
+console.log(process.env.SECRET);
+
 const express = require("express");
 const mongoose = require("mongoose");
 const app = express();
 const port = 8080;
 const path = require("path");
 const methodOverride = require("method-override");
+
 
 // Modularity -> Layouts & includes
 const ejsMate = require("ejs-mate");
